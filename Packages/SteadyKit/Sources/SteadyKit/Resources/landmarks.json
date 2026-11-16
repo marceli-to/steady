@@ -1,0 +1,11 @@
+[
+ {"id": "eiffel",     "name": "the Eiffel Tower", "short": "Eiffel Tower", "metres": 330},
+ {"id": "burj",       "name": "the Burj Khalifa", "short": "Burj Khalifa", "metres": 828},
+ {"id": "ben-nevis",  "name": "Ben Nevis",        "short": "Ben Nevis",    "metres": 1345},
+ {"id": "pilatus",    "name": "Pilatus",          "short": "Pilatus",      "metres": 2128},
+ {"id": "fuji",       "name": "Mount Fuji",       "short": "Fuji",         "metres": 3776},
+ {"id": "matterhorn", "name": "the Matterhorn",   "short": "Matterhorn",   "metres": 4478},
+ {"id": "mont-blanc", "name": "Mont Blanc",       "short": "Mont Blanc",   "metres": 4806},
+ {"id": "kilimanjaro","name": "Kilimanjaro",      "short": "Kilimanjaro",  "metres": 5895},
+ {"id": "everest",    "name": "Everest",          "short": "Everest",      "metres": 8849}
+]
