@@ -1,0 +1,16 @@
+{
+  "id": "hadrians-wall", "version": 1,
+  "title": "Hadrian's Wall", "destination": "Solway",
+  "subtitle": "Coast to coast along the Roman frontier",
+  "metric": "distance", "total": 135000,
+  "milestones": [
+    { "id": "wallsend",    "name": "Wallsend",          "at": 0,      "lat": 54.9876, "lon": -1.5330 },
+    { "id": "newcastle",   "name": "Newcastle",         "at": 6000,   "lat": 54.9700, "lon": -1.6130 },
+    { "id": "heddon",      "name": "Heddon-on-the-Wall","at": 24000,  "lat": 54.9970, "lon": -1.7920 },
+    { "id": "chollerford", "name": "Chollerford",       "at": 50000,  "lat": 55.0300, "lon": -2.1210 },
+    { "id": "housesteads", "name": "Housesteads Fort",  "at": 63000,  "lat": 55.0130, "lon": -2.3310 },
+    { "id": "gilsland",    "name": "Gilsland",          "at": 86000,  "lat": 54.9880, "lon": -2.5770 },
+    { "id": "carlisle",    "name": "Carlisle",          "at": 118000, "lat": 54.8925, "lon": -2.9329 },
+    { "id": "bowness",     "name": "Bowness-on-Solway", "at": 135000, "lat": 54.9530, "lon": -3.2130 }
+  ]
+}

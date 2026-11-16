@@ -37,6 +37,8 @@ struct FormatterTests {
         #expect(km.height(42) == "42 m")
         #expect(km.height(41_587) == "41,590 m")
         #expect(mi.height(1_000) == "3,280 ft")
+        #expect(km.exactHeightNumber(8_849) == "8,849")
+        #expect(km.heightNumber(8_849) == "8,850")
     }
 
     @Test func multiples() {

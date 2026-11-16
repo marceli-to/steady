@@ -1,0 +1,17 @@
+{
+  "id": "kilimanjaro", "version": 1,
+  "title": "Climb Kilimanjaro", "destination": "Kilimanjaro",
+  "subtitle": "From sea level to the roof of Africa",
+  "metric": "elevation", "total": 5895,
+  "milestones": [
+    { "id": "sea",     "name": "Sea level",      "at": 0,    "altitude": 0 },
+    { "id": "moshi",   "name": "Moshi",          "at": 890,  "altitude": 890 },
+    { "id": "gate",    "name": "Machame Gate",   "at": 1800, "altitude": 1800 },
+    { "id": "machame", "name": "Machame Camp",   "at": 3000, "altitude": 3000 },
+    { "id": "shira",   "name": "Shira Camp",     "at": 3850, "altitude": 3850 },
+    { "id": "barranco","name": "Barranco Camp",  "at": 3960, "altitude": 3960 },
+    { "id": "barafu",  "name": "Barafu Camp",    "at": 4670, "altitude": 4670 },
+    { "id": "stella",  "name": "Stella Point",   "at": 5756, "altitude": 5756 },
+    { "id": "uhuru",   "name": "Uhuru Peak",     "at": 5895, "altitude": 5895 }
+  ]
+}

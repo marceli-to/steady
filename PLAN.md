@@ -228,12 +228,12 @@ Acceptance:
 Build: journey loader + validation, `JourneyRun`, progress engine, arrival estimator, Home, Journeys list/detail, collection of finished journeys, App Group snapshot, 4 widgets.
 
 Acceptance:
-- [ ] All 5 bundled journeys load and pass validation tests.
-- [ ] Starting a journey counts from the start of that day; only one active run; finished runs appear in a small collection.
-- [ ] Home shows route line with position, "near Bellinzona", km done / total, estimated arrival ("at this pace you'll arrive in late March"), then this year and all time with comparisons. Nothing else.
-- [ ] Elevation journeys render as a vertical profile with the same visual language (solid accent done, dashed ahead).
-- [ ] Widgets (medium, small, lock rectangular, lock circular) match the mockups, update when the app refreshes, and show the last snapshot when locked. All have VoiceOver labels.
-- [ ] Unit tests: milestone detection (dates, multiple in one day, backfill after days closed, exact boundary), progress capping, current-place phrasing, arrival estimate and phrasing (zero pace, far future).
+- [x] All 5 bundled journeys load and pass validation tests.
+- [x] Starting a journey counts from the start of that day; only one active run; finished runs appear in a small collection.
+- [x] Home shows route line with position, "near Bellinzona", km done / total, estimated arrival ("at this pace you'll arrive in late March"), then this year and all time with comparisons. Nothing else.
+- [x] Elevation journeys render as a vertical profile with the same visual language (solid accent done, dashed ahead).
+- [x] Widgets (medium, small, lock rectangular, lock circular) match the mockups, update when the app refreshes, and show the last snapshot when locked. All have VoiceOver labels.
+- [x] Unit tests: milestone detection (dates, multiple in one day, backfill after days closed, exact boundary), progress capping, current-place phrasing, arrival estimate and phrasing (zero pace, far future).
 
 ### Phase 3 — Postcards and share cards
 Build: postcard creation on milestone reached, postcard list, optional local notification (off by default), `ShareRenderer`, story card 1080×1920 dark, postcard 1080×1080 light, `ShareLink`.
@@ -267,5 +267,6 @@ Acceptance:
 - **Tests**: `swift test` in `Packages/SteadyKit` (fast), or the `Steady` scheme's test action (package + app tests on a simulator).
 - **Data source**: the simulator always uses mock history (`-realHealth` to override); on a device `-mockHealth` forces mock data.
 - **Debug launch arguments**: `-resetOnLaunch` (fresh in-memory store and settings), `-demoReveal <placeID>` (jump to the reveal).
-- **Mockups**: the mockup doc isn't readable from Claude Code's session; Phase 2 needs it shared, or exported as images into `design/`.
+- **Mockups**: exported into `design/` (widgets, story card, postcard).
+- **Widgets**: show the snapshot the app writes to the App Group (on open, settings change, and HealthKit background delivery, hourly at best). `-widgetGallery` (Debug) shows all four at real size inside the app. `-demoJourney <id>:<days ago>` starts a journey in the past.
 - **Git**: one commit per phase.

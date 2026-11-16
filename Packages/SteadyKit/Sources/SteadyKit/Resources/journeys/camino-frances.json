@@ -1,0 +1,17 @@
+{
+  "id": "camino-frances", "version": 1,
+  "title": "Camino Francés", "destination": "Santiago",
+  "subtitle": "Across northern Spain to Santiago de Compostela",
+  "metric": "distance", "total": 770000,
+  "milestones": [
+    { "id": "sjpp",       "name": "Saint-Jean-Pied-de-Port", "at": 0,      "lat": 43.1630, "lon": -1.2380 },
+    { "id": "pamplona",   "name": "Pamplona",   "at": 68000,  "lat": 42.8125, "lon": -1.6458 },
+    { "id": "logrono",    "name": "Logroño",    "at": 160000, "lat": 42.4627, "lon": -2.4450 },
+    { "id": "burgos",     "name": "Burgos",     "at": 280000, "lat": 42.3439, "lon": -3.6969 },
+    { "id": "leon",       "name": "León",       "at": 460000, "lat": 42.5987, "lon": -5.5671 },
+    { "id": "astorga",    "name": "Astorga",    "at": 510000, "lat": 42.4589, "lon": -6.0563 },
+    { "id": "ponferrada", "name": "Ponferrada", "at": 565000, "lat": 42.5460, "lon": -6.5962 },
+    { "id": "sarria",     "name": "Sarria",     "at": 655000, "lat": 42.7809, "lon": -7.4147 },
+    { "id": "santiago",   "name": "Santiago",   "at": 770000, "lat": 42.8782, "lon": -8.5448 }
+  ]
+}

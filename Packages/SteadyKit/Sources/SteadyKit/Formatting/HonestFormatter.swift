@@ -57,9 +57,19 @@ public struct HonestFormatter: Sendable {
         return value < 100 ? value.rounded() : (value / 10).rounded() * 10
     }
 
+    /// "4,560"
+    public func heightNumber(_ metres: Double) -> String {
+        number(roundedHeight(metres), fractionDigits: 0)
+    }
+
+    /// Unrounded, for heights that are facts rather than measurements (Everest is 8,849 m).
+    public func exactHeightNumber(_ metres: Double) -> String {
+        number((max(0, metres) / unit.metresPerHeightUnit).rounded(), fractionDigits: 0)
+    }
+
     /// "4,560 m"
     public func height(_ metres: Double) -> String {
-        "\(number(roundedHeight(metres), fractionDigits: 0)) \(unit.heightSymbol)"
+        "\(heightNumber(metres)) \(unit.heightSymbol)"
     }
 
     // MARK: Multiples and comparisons

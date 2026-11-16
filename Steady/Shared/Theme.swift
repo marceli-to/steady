@@ -8,6 +8,8 @@ enum Theme {
     static let muted = Color(light: 0x47514A, dark: 0xA3ACA5)
     static let faint = Color(light: 0x47514A, dark: 0xA3ACA5).opacity(0.35)
     static let accent = Color(light: 0xB8502B, dark: 0xE07A50)
+    /// Raised surface, e.g. the medium widget.
+    static let card = Color(light: 0xF5F6F2, dark: 0x27302A)
 
     static let gutter: CGFloat = 28
 }

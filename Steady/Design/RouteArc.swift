@@ -48,20 +48,6 @@ struct RouteArc: View {
     }
 }
 
-/// A low arc between the bottom corners of its rect, like a great-circle route on a flat map.
-struct ArcShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        let inset: CGFloat = 8
-        let start = CGPoint(x: rect.minX + inset, y: rect.maxY - inset)
-        let end = CGPoint(x: rect.maxX - inset, y: rect.maxY - inset)
-        let control = CGPoint(x: rect.midX, y: rect.minY - rect.height * 0.55)
-        var path = Path()
-        path.move(to: start)
-        path.addQuadCurve(to: end, control: control)
-        return path
-    }
-}
-
 /// Text that counts smoothly between values when its value is animated.
 struct CountingText: View, @preconcurrency Animatable {
     var value: Double

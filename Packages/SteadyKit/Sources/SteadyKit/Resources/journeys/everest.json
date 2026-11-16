@@ -1,0 +1,17 @@
+{
+  "id": "everest", "version": 1,
+  "title": "Climb Everest", "destination": "Everest",
+  "subtitle": "From sea level to 8,849 m, one staircase at a time",
+  "metric": "elevation", "total": 8849,
+  "milestones": [
+    { "id": "sea",    "name": "Sea level",      "at": 0,    "altitude": 0 },
+    { "id": "lukla",  "name": "Lukla",          "at": 2860, "altitude": 2860 },
+    { "id": "namche", "name": "Namche Bazaar",  "at": 3440, "altitude": 3440 },
+    { "id": "base",   "name": "Base Camp",      "at": 5364, "altitude": 5364 },
+    { "id": "camp1",  "name": "Camp 1",         "at": 6065, "altitude": 6065 },
+    { "id": "camp2",  "name": "Camp 2",         "at": 6400, "altitude": 6400 },
+    { "id": "camp3",  "name": "Camp 3",         "at": 7200, "altitude": 7200 },
+    { "id": "camp4",  "name": "Camp 4",         "at": 7950, "altitude": 7950 },
+    { "id": "summit", "name": "Summit",         "at": 8849, "altitude": 8849 }
+  ]
+}

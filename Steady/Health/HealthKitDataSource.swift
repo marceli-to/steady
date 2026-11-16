@@ -76,6 +76,23 @@ final class HealthKitDataSource: HealthDataSource, @unchecked Sendable {
         return result
     }
 
+    /// Wakes the app (at most hourly) when new steps are saved, so widgets stay current
+    /// without the app being opened. `onChange` must finish before HealthKit is told we're done.
+    func observeNewSteps(_ onChange: @escaping @Sendable () async -> Void) {
+        let type = HKQuantityType(.stepCount)
+        let query = HKObserverQuery(sampleType: type, predicate: nil) { _, completion, error in
+            guard error == nil else { completion(); return }
+            // HealthKit's completion handler is safe to call from any thread.
+            nonisolated(unsafe) let done = completion
+            Task {
+                await onChange()
+                done()
+            }
+        }
+        store.execute(query)
+        store.enableBackgroundDelivery(for: type, frequency: .hourly) { _, _ in }
+    }
+
     private func collect(_ metric: HealthMetric, predicate: NSPredicate, range: DateInterval,
                          calendar: Calendar) async throws -> [Date: Double] {
         let anchor = calendar.startOfDay(for: range.start)

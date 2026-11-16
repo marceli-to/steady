@@ -11,7 +11,11 @@ let package = Package(
     targets: [
         .target(
             name: "SteadyKit",
-            resources: [.process("Resources")]
+            resources: [
+                .process("Resources/places.json"),
+                .process("Resources/landmarks.json"),
+                .copy("Resources/journeys"),
+            ]
         ),
         .testTarget(
             name: "SteadyKitTests",

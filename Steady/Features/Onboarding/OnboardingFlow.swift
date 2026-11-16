@@ -30,6 +30,7 @@ struct OnboardingFlow: View {
             case .reveal:
                 RevealView {
                     model.hasOnboarded = true
+                    model.presentsJourneys = true
                 }
                 .transition(.opacity)
             }

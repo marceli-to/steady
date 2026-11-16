@@ -16,7 +16,7 @@ struct SteadyApp: App {
         }
         do {
             container = try ModelContainer(
-                for: DayRecord.self,
+                for: DayRecord.self, JourneyRun.self,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: inMemory)
             )
         } catch {
@@ -26,7 +26,10 @@ struct SteadyApp: App {
             UserDefaults.standard.set(args[index + 1], forKey: "homePlaceID")
         }
         let (source, isMock) = AppModel.makeSource()
-        _model = State(initialValue: AppModel(source: source, usesMockData: isMock, container: container))
+        let model = AppModel(source: source, usesMockData: isMock, container: container)
+        model.applyDemoArguments()
+        model.startBackgroundUpdates()
+        _model = State(initialValue: model)
     }
 
     var body: some Scene {
@@ -47,11 +50,21 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-widgetGallery") {
+                WidgetGallery()
+            } else if model.hasOnboarded {
+                HomeView().transition(.opacity)
+            } else {
+                OnboardingFlow().transition(.opacity)
+            }
+            #else
             if model.hasOnboarded {
                 HomeView().transition(.opacity)
             } else {
                 OnboardingFlow().transition(.opacity)
             }
+            #endif
         }
         .animation(.easeInOut(duration: 0.6), value: model.hasOnboarded)
     }
