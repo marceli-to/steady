@@ -49,10 +49,12 @@ private struct ReadingView: View {
     }
 }
 
-private struct RevealContent: View {
+struct RevealContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var onFinish: () -> Void
+    /// "Start a journey" on first open; "Done" when replayed from Home.
+    var finishTitle = "Start a journey"
 
     @State private var shownDistance: Double = 0
     @State private var stage = 0          // 0 nothing · 1 since · 2 number · 3 route · 4 elevation · 5 actions
@@ -123,7 +125,7 @@ private struct RevealContent: View {
             VStack(spacing: 12) {
                 Button("Share this") { sharing = true }
                     .buttonStyle(.steadyQuiet)
-                Button("Start a journey", action: onFinish)
+                Button(finishTitle, action: onFinish)
                     .buttonStyle(.steady)
                 Text(model.includeWorkouts ? "Workouts included" : "Everyday walking only, no workouts counted")
                     .font(.mono(11, relativeTo: .caption2))
@@ -211,5 +213,19 @@ private struct NothingToShowView: View {
         .padding(.horizontal, Theme.gutter)
         .padding(.bottom, 20)
         }
+    }
+}
+
+/// The reveal again, from tapping the all-time total on Home. Same slow count-up and line;
+/// Reduce Motion still fades instead.
+struct RevealReplay: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack {
+            Theme.ground.ignoresSafeArea()
+            RevealContent(onFinish: { dismiss() }, finishTitle: "Done")
+        }
+        .environment(\.colorScheme, .dark)
     }
 }

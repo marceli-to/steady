@@ -252,7 +252,7 @@ Notes: postcard notifications are off by default (Settings); at most one per ref
 Build: Look back (year in review: distance, elevation, best month, comparison) shown in December + year archive, Settings (home city, include workouts, units, show home city on cards, postcard notifications, How we count), polish, accessibility pass.
 
 Acceptance:
-- [x] Look back available in December for the current year and any time for past years via the archive (a quiet "Look back" row of years at the bottom of Home; a year menu inside).
+- [x] Look back available in December for the current year and any time for past years via the archive (one pill per past year at the bottom of Home, "2025  ≈ Zürich → Casablanca", kept to one line so no distance; a year menu inside).
 - [x] Settings changes propagate to app and widgets immediately.
 - [x] "How we count" explains distance source, workout exclusion, flights → metres, rounding, and why numbers are approximate, in plain language (reachable from Settings).
 - [x] Dynamic Type up to AX5 without clipping on every screen checked in the simulator (welcome, reveal, home, journeys, postcards, postcard, share, look back, settings, how we count); full-screen layouts scroll at accessibility sizes. Dark mode on every screen; VoiceOver labels on every route graphic and number; Reduce Motion replaces count-up, line-draw and the look-back bars with a fade.
@@ -268,9 +268,20 @@ Not yet checked on a real phone: VoiceOver end to end, and the SwiftData migrati
 
 - **Signing**: free Personal Team `3TWRBP96AK`, bundle ID `to.marceli.steady.dev` (App Group will be `group.to.marceli.steady.dev`). Free-team builds expire after 7 days; reinstall from Xcode. Switch `DEVELOPMENT_TEAM` and the IDs in `project.yml` for the studio account.
 - **Project**: `xcodegen generate` after adding/removing files; `Steady.xcodeproj` is generated, `project.yml` is the source of truth.
+- **Toolchain in practice**: built and tested with Xcode 26.6 (Swift 6.3, iOS 26.5 simulator) on macOS 26.5; Xcode 27.2 needs macOS 26.6. Nothing needed 27-only APIs.
 - **Tests**: `swift test` in `Packages/SteadyKit` (fast), or the `Steady` scheme's test action (package + app tests on a simulator).
 - **Data source**: the simulator always uses mock history (`-realHealth` to override); on a device `-mockHealth` forces mock data.
-- **Debug launch arguments**: `-resetOnLaunch` (fresh in-memory store and settings), `-demoReveal <placeID>` (jump to the reveal), `-skipOnboarding` (straight to Home, home city Zürich), `-open lookback|settings|journeys|postcards|postcard|story|howwecount` (open a screen after the first sync). With `xcrun simctl ui <device> content_size accessibility-extra-extra-extra-large` these make AX5 screenshots quick.
+- **Debug launch arguments**: `-resetOnLaunch` (fresh in-memory store and settings), `-demoReveal <placeID>` (jump to the reveal), `-skipOnboarding` (straight to Home, home city Zürich), `-open lookback|settings|journeys|postcards|postcard|story|reveal|howwecount` (open a screen after the first sync). With `xcrun simctl ui <device> content_size accessibility-extra-extra-extra-large` these make AX5 screenshots quick.
 - **Mockups**: exported into `design/` (widgets, story card, postcard).
 - **Widgets**: show the snapshot the app writes to the App Group (on open, settings change, and HealthKit background delivery, hourly at best). `-widgetGallery` (Debug) shows all four at real size inside the app. `-demoJourney <id>:<days ago>` starts a journey in the past.
 - **Git**: one commit per phase.
+
+---
+
+## 6. Status and what's next
+
+All four phases are done and pushed (`092e4a6`). Left before a release:
+- **On a real phone**: VoiceOver end to end; the SwiftData migration from a phase 2 install (Postcard model added in phase 3); a postcard notification arriving via Health background delivery.
+- **Story card link**: the mockup's `[APP LINK]` reads "steady for iPhone" until there is a store URL.
+- **Studio account**: switch `DEVELOPMENT_TEAM`, bundle IDs and the App Group in `project.yml` (and `WidgetSnapshot.appGroup`), then TestFlight.
+- **App Store**: screenshots (the `-skipOnboarding` / `-open` launch arguments help), description, privacy label "Data Not Collected".

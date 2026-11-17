@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var showsSettings = false
     @State private var showsPostcards = false
     @State private var sharesStory = false
+    @State private var replaysReveal = false
     @State private var openPostcard: Postcard?
     @State private var lookBack: LookBackYear?
     @State private var showsHowWeCount = false
@@ -23,7 +24,8 @@ struct HomeView: View {
                     }
                     VStack(alignment: .leading, spacing: 36) {
                         TotalBlock(title: "This year", summary: model.thisYear)
-                        TotalBlock(title: sinceTitle, summary: model.allTime) { sharesStory = true }
+                        TotalBlock(title: sinceTitle, summary: model.allTime, onShare: { sharesStory = true },
+                                   onReplay: { replaysReveal = true })
                     }
                     LookBackBlock { lookBack = LookBackYear(year: $0) }
                     if case .syncing = model.syncState {
@@ -67,6 +69,7 @@ struct HomeView: View {
             .sheet(isPresented: $model.presentsJourneys) { JourneysView() }
             .sheet(isPresented: $showsPostcards) { PostcardsView() }
             .sheet(isPresented: $sharesStory) { StoryShareSheet() }
+            .fullScreenCover(isPresented: $replaysReveal) { RevealReplay() }
             .sheet(item: $openPostcard) { PostcardSheet(postcard: $0) }
             .sheet(item: $lookBack) { LookBackView(year: $0.year) }
             .sheet(isPresented: $showsHowWeCount) {
@@ -95,6 +98,7 @@ struct HomeView: View {
         case "postcards": showsPostcards = true
         case "postcard": openPostcard = model.postcards.first
         case "story": sharesStory = true
+        case "reveal": replaysReveal = true
         case "howwecount": showsHowWeCount = true
         default: break
         }
@@ -216,6 +220,8 @@ private struct TotalBlock: View {
     let title: String
     let summary: MovementSummary
     var onShare: (() -> Void)?
+    /// Tapping the number plays the reveal again.
+    var onReplay: (() -> Void)?
 
     var body: some View {
         let formatter = model.formatter
@@ -233,6 +239,23 @@ private struct TotalBlock: View {
                     .accessibilityLabel("Share")
                 }
             }
+            numbers(formatter)
+        }
+    }
+
+    @ViewBuilder
+    private func numbers(_ formatter: HonestFormatter) -> some View {
+        if let onReplay, summary.distance > 0 {
+            Button(action: onReplay) { figures(formatter) }
+                .buttonStyle(.plain)
+                .accessibilityHint("Plays the reveal again")
+        } else {
+            figures(formatter)
+        }
+    }
+
+    private func figures(_ formatter: HonestFormatter) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(formatter.distanceNumber(summary.distance))
                     .font(.manrope(40, .extraBold, relativeTo: .largeTitle))
