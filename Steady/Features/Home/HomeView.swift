@@ -284,28 +284,44 @@ private struct LookBackBlock: View {
                     Button("Your \(String(thisYear)), looked back") { onOpen(thisYear) }
                         .buttonStyle(.steady)
                 }
-                let past = years.filter { $0 != thisYear }
-                if !past.isEmpty {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 10) { yearButtons(past) }
-                        VStack(alignment: .leading, spacing: 10) { yearButtons(past) }
-                    }
+                ForEach(years.filter { $0 != thisYear }.prefix(6), id: \.self) { year in
+                    YearPill(year: year) { onOpen(year) }
                 }
             }
         }
     }
+}
 
-    @ViewBuilder
-    private func yearButtons(_ years: [Int]) -> some View {
-        ForEach(years.prefix(6), id: \.self) { year in
-            Button(String(year)) { onOpen(year) }
-                .font(.mono(14, .medium, relativeTo: .subheadline))
-                .foregroundStyle(Theme.ink)
-                .padding(.horizontal, 14)
-                .frame(minHeight: 44)
-                .background(Capsule().strokeBorder(Theme.ink.opacity(0.25), lineWidth: 1))
-                .accessibilityLabel("Look back at \(String(year))")
+/// "2025   ≈ Zürich → Casablanca". The distance is in the VoiceOver label and the look back itself.
+private struct YearPill: View {
+    @Environment(AppModel.self) private var model
+    let year: Int
+    var action: () -> Void
+
+    var body: some View {
+        let distance = model.review(of: year).summary.distance
+        let formatter = model.formatter
+        let comparison = model.distanceComparison(for: distance)
+        Button(action: action) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(String(year))
+                    .font(.mono(13, .medium, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.muted)
+                Text(comparison.map(formatter.comparison) ?? formatter.distance(distance))
+                    .foregroundStyle(comparison == nil ? Theme.ink : Theme.accent)
+                    .font(.manrope(16, .bold, relativeTo: .body))
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+            .background(Capsule().strokeBorder(Theme.ink.opacity(0.25), lineWidth: 1))
+            .contentShape(Capsule())
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Look back at \(String(year)): about \(formatter.distance(distance))" + (comparison.map { ", " + formatter.spokenComparison($0) } ?? ""))
     }
 }
 
