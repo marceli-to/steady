@@ -43,6 +43,7 @@ struct WelcomeView: View {
     @State private var working = false
 
     var body: some View {
+        ScrollsWhenLarge {
         VStack(alignment: .leading, spacing: 0) {
             Spacer()
             Text("steady")
@@ -79,6 +80,7 @@ struct WelcomeView: View {
         .padding(.horizontal, Theme.gutter)
         .padding(.bottom, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
         .background(Theme.ground.ignoresSafeArea())
     }
 }

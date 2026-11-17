@@ -83,6 +83,15 @@ final class AppModel {
         picker.elevation(metres)
     }
 
+    // MARK: Look back
+
+    /// Past years with data, plus this one in December. Newest first.
+    var lookBackYears: [Int] { LookBack.years(in: days, calendar: calendar) }
+
+    func review(of year: Int) -> YearInReview {
+        YearInReview(year: year, days: days, includingWorkouts: includeWorkouts, calendar: calendar)
+    }
+
     // MARK: Journeys
 
     var activeRun: JourneyRun? { runs.first { $0.finishedOn == nil && $0.journey != nil } }
@@ -110,6 +119,20 @@ final class AppModel {
     func progressText(_ progress: JourneyProgress, separator: String = " of ") -> String {
         let parts = amounts(progress)
         return "\(parts.done)\(separator)\(parts.total) \(parts.unit)"
+    }
+
+    /// "214 of about 900 kilometres", for VoiceOver.
+    func spokenProgress(_ progress: JourneyProgress) -> String {
+        let parts = amounts(progress)
+        let total = parts.total.replacingOccurrences(of: "~", with: "about ")
+        let unitName: String
+        switch (progress.journey.metric, unit) {
+        case (.distance, .kilometres): unitName = "kilometres"
+        case (.distance, .miles): unitName = "miles"
+        case (.elevation, .kilometres): unitName = "metres"
+        case (.elevation, .miles): unitName = "feet"
+        }
+        return "\(parts.done) of \(total) \(unitName)"
     }
 
     func amounts(_ progress: JourneyProgress) -> (done: String, total: String, unit: String) {

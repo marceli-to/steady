@@ -41,15 +41,20 @@ struct JourneysView: View {
 
 private struct JourneyRow: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.dynamicTypeSize) private var typeSize
     let journey: Journey
 
     var body: some View {
+        // At accessibility sizes the "current" label goes under the title instead of squeezing it.
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
         VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
+            layout {
                 Text(journey.title)
                     .font(.manrope(19, .bold, relativeTo: .headline))
                     .foregroundStyle(Theme.ink)
-                Spacer()
+                if !typeSize.isAccessibilitySize { Spacer() }
                 if model.activeRun?.journeyID == journey.id {
                     Caption("Current", color: Theme.accent)
                 }

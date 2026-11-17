@@ -252,13 +252,15 @@ Notes: postcard notifications are off by default (Settings); at most one per ref
 Build: Look back (year in review: distance, elevation, best month, comparison) shown in December + year archive, Settings (home city, include workouts, units, show home city on cards, postcard notifications, How we count), polish, accessibility pass.
 
 Acceptance:
-- [ ] Look back available in December for the current year and any time for past years via the archive.
-- [ ] Settings changes propagate to app and widgets immediately.
-- [ ] "How we count" explains distance source, workout exclusion, flights → metres, rounding, and why numbers are approximate, in plain language.
-- [ ] Dynamic Type up to AX5 without clipping on every screen; dark mode on every screen; VoiceOver labels on every route graphic and number; Reduce Motion replaces count-up and line-draw with a fade.
-- [ ] No streaks, badges, confetti, leaderboards, or default-on notifications anywhere.
-- [ ] Privacy manifest and strings final; App Store label "Data Not Collected" justified.
-- [ ] Unit tests: look-back aggregation (best month, year boundaries, time zones/DST around midnight).
+- [x] Look back available in December for the current year and any time for past years via the archive (a quiet "Look back" row of years at the bottom of Home; a year menu inside).
+- [x] Settings changes propagate to app and widgets immediately.
+- [x] "How we count" explains distance source, workout exclusion, flights → metres, rounding, and why numbers are approximate, in plain language (reachable from Settings).
+- [x] Dynamic Type up to AX5 without clipping on every screen checked in the simulator (welcome, reveal, home, journeys, postcards, postcard, share, look back, settings, how we count); full-screen layouts scroll at accessibility sizes. Dark mode on every screen; VoiceOver labels on every route graphic and number; Reduce Motion replaces count-up, line-draw and the look-back bars with a fade.
+- [x] No streaks, badges, confetti, leaderboards, or default-on notifications anywhere.
+- [x] Privacy manifest and strings final (UserDefaults reasons CA92.1 + 1C8F.1 for the App Group, manifest in the widget extension too); App Store label "Data Not Collected" justified: no network code, no analytics, everything stays on device.
+- [x] Unit tests: look-back aggregation (best month, year boundaries, time zones/DST around midnight).
+
+Not yet checked on a real phone: VoiceOver end to end, and the SwiftData migration from a phase 2 install (Postcard model added in phase 3).
 
 ---
 
@@ -268,7 +270,7 @@ Acceptance:
 - **Project**: `xcodegen generate` after adding/removing files; `Steady.xcodeproj` is generated, `project.yml` is the source of truth.
 - **Tests**: `swift test` in `Packages/SteadyKit` (fast), or the `Steady` scheme's test action (package + app tests on a simulator).
 - **Data source**: the simulator always uses mock history (`-realHealth` to override); on a device `-mockHealth` forces mock data.
-- **Debug launch arguments**: `-resetOnLaunch` (fresh in-memory store and settings), `-demoReveal <placeID>` (jump to the reveal).
+- **Debug launch arguments**: `-resetOnLaunch` (fresh in-memory store and settings), `-demoReveal <placeID>` (jump to the reveal), `-skipOnboarding` (straight to Home, home city Zürich), `-open lookback|settings|journeys|postcards|postcard|story|howwecount` (open a screen after the first sync). With `xcrun simctl ui <device> content_size accessibility-extra-extra-extra-large` these make AX5 screenshots quick.
 - **Mockups**: exported into `design/` (widgets, story card, postcard).
 - **Widgets**: show the snapshot the app writes to the App Group (on open, settings change, and HealthKit background delivery, hourly at best). `-widgetGallery` (Debug) shows all four at real size inside the app. `-demoJourney <id>:<days ago>` starts a journey in the past.
 - **Git**: one commit per phase.

@@ -81,6 +81,8 @@ targets:
       - path: Steady/Resources/Fonts
         includes: ["*.ttf"]
         buildPhase: resources
+      - path: Steady/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       - package: SteadyKit
       - sdk: WidgetKit.framework

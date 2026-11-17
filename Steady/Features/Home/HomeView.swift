@@ -8,6 +8,8 @@ struct HomeView: View {
     @State private var showsPostcards = false
     @State private var sharesStory = false
     @State private var openPostcard: Postcard?
+    @State private var lookBack: LookBackYear?
+    @State private var showsHowWeCount = false
 
     var body: some View {
         @Bindable var model = model
@@ -23,6 +25,7 @@ struct HomeView: View {
                         TotalBlock(title: "This year", summary: model.thisYear)
                         TotalBlock(title: sinceTitle, summary: model.allTime) { sharesStory = true }
                     }
+                    LookBackBlock { lookBack = LookBackYear(year: $0) }
                     if case .syncing = model.syncState {
                         Caption("Reading new steps…")
                     }
@@ -37,10 +40,12 @@ struct HomeView: View {
                 await model.waitForSync()
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text("steady")
-                        .font(.manrope(22, .extraBold, relativeTo: .title2))
-                        .foregroundStyle(Theme.ink)
+                // The wordmark is a logo, not a button: no glass behind it, and it never truncates.
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .topBarLeading) { Wordmark() }
+                        .sharedBackgroundVisibility(.hidden)
+                } else {
+                    ToolbarItem(placement: .topBarLeading) { Wordmark() }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showsPostcards = true } label: {
@@ -63,8 +68,38 @@ struct HomeView: View {
             .sheet(isPresented: $showsPostcards) { PostcardsView() }
             .sheet(isPresented: $sharesStory) { StoryShareSheet() }
             .sheet(item: $openPostcard) { PostcardSheet(postcard: $0) }
+            .sheet(item: $lookBack) { LookBackView(year: $0.year) }
+            .sheet(isPresented: $showsHowWeCount) {
+                NavigationStack { HowWeCountView() }
+            }
+            #if DEBUG
+            .task {
+                // Wait for the first sync, so there are postcards and years to open.
+                try? await Task.sleep(for: .seconds(1.5))
+                await model.waitForSync()
+                openFromLaunchArguments()
+            }
+            #endif
         }
     }
+
+    #if DEBUG
+    /// `-open lookback|settings|journeys|postcards|story|howwecount|postcard`, for screenshots.
+    private func openFromLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of: "-open"), args.indices.contains(index + 1) else { return }
+        switch args[index + 1] {
+        case "lookback": lookBack = model.lookBackYears.first.map(LookBackYear.init(year:))
+        case "settings": showsSettings = true
+        case "journeys": model.presentsJourneys = true
+        case "postcards": showsPostcards = true
+        case "postcard": openPostcard = model.postcards.first
+        case "story": sharesStory = true
+        case "howwecount": showsHowWeCount = true
+        default: break
+        }
+    }
+    #endif
 
     private var sinceTitle: String {
         guard let first = model.allTime.firstDay else { return "All time" }
@@ -98,6 +133,7 @@ private struct JourneyBlock: View {
                 .foregroundStyle(Theme.muted)
                 .monospacedDigit()
                 .padding(.top, 2)
+                .accessibilityLabel(model.spokenProgress(progress))
 
             RouteDrawing(journey: progress.journey, done: progress.done)
                 .frame(height: progress.journey.metric == .distance ? 280 : 220)
@@ -225,5 +261,61 @@ private struct TotalBlock: View {
                     .padding(.top, 4)
             }
         }
+    }
+}
+
+struct LookBackYear: Identifiable {
+    let year: Int
+    var id: Int { year }
+}
+
+/// In December, this year's look back; any time, the years before. Quiet, at the bottom.
+private struct LookBackBlock: View {
+    @Environment(AppModel.self) private var model
+    var onOpen: (Int) -> Void
+
+    var body: some View {
+        let years = model.lookBackYears
+        let thisYear = Calendar.current.component(.year, from: .now)
+        if !years.isEmpty {
+            VStack(alignment: .leading, spacing: 14) {
+                Caption("Look back")
+                if years.first == thisYear {
+                    Button("Your \(String(thisYear)), looked back") { onOpen(thisYear) }
+                        .buttonStyle(.steady)
+                }
+                let past = years.filter { $0 != thisYear }
+                if !past.isEmpty {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 10) { yearButtons(past) }
+                        VStack(alignment: .leading, spacing: 10) { yearButtons(past) }
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func yearButtons(_ years: [Int]) -> some View {
+        ForEach(years.prefix(6), id: \.self) { year in
+            Button(String(year)) { onOpen(year) }
+                .font(.mono(14, .medium, relativeTo: .subheadline))
+                .foregroundStyle(Theme.ink)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 44)
+                .background(Capsule().strokeBorder(Theme.ink.opacity(0.25), lineWidth: 1))
+                .accessibilityLabel("Look back at \(String(year))")
+        }
+    }
+}
+
+private struct Wordmark: View {
+    var body: some View {
+        Text("steady")
+            .font(.manrope(22, .extraBold, relativeTo: .title2))
+            .foregroundStyle(Theme.ink)
+            .fixedSize()
+            .dynamicTypeSize(...DynamicTypeSize.xxLarge)
+            .accessibilityAddTraits(.isHeader)
     }
 }

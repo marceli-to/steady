@@ -65,6 +65,7 @@ private struct RevealContent: View {
         let comparison = model.distanceComparison(for: summary.distance)
         let elevation = model.elevationComparison(for: summary.elevation)
 
+        ScrollsWhenLarge {
         VStack(alignment: .leading, spacing: 0) {
             Spacer()
 
@@ -134,6 +135,7 @@ private struct RevealContent: View {
         }
         .padding(.horizontal, Theme.gutter)
         .padding(.bottom, 20)
+        }
         .task { await play(to: summary.distance) }
         .sheet(isPresented: $sharing) { StoryShareSheet() }
     }
@@ -183,6 +185,7 @@ private struct NothingToShowView: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
+        ScrollsWhenLarge {
         VStack(alignment: .leading, spacing: 16) {
             Spacer()
             Text("No steps to show yet")
@@ -207,5 +210,6 @@ private struct NothingToShowView: View {
         }
         .padding(.horizontal, Theme.gutter)
         .padding(.bottom, 20)
+        }
     }
 }

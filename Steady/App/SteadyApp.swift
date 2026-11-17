@@ -25,6 +25,15 @@ struct SteadyApp: App {
         if let index = args.firstIndex(of: "-demoReveal"), args.indices.contains(index + 1) {
             UserDefaults.standard.set(args[index + 1], forKey: "homePlaceID")
         }
+        #if DEBUG
+        // `-skipOnboarding`: straight to Home (home city Zürich unless one is set), for screenshots.
+        if args.contains("-skipOnboarding") {
+            UserDefaults.standard.set(true, forKey: "hasOnboarded")
+            if UserDefaults.standard.string(forKey: "homePlaceID") == nil {
+                UserDefaults.standard.set("zurich", forKey: "homePlaceID")
+            }
+        }
+        #endif
         let (source, isMock) = AppModel.makeSource()
         let model = AppModel(source: source, usesMockData: isMock, container: container)
         model.applyDemoArguments()
