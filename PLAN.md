@@ -280,7 +280,11 @@ Not yet checked on a real phone: VoiceOver end to end, and the SwiftData migrati
 
 ## 6. Status and what's next
 
-All four phases are done and pushed (`092e4a6`). Left before a release:
+All four phases are done and pushed. Since then:
+- Look back pills show "2025  ≈ Zürich → Casablanca" (no distance, so they stay on one line).
+- The reveal runs once, as part of onboarding; afterwards tapping the all-time total on Home replays it full screen, ending in "Done" (`89c1228`).
+
+Left before a release:
 - **On a real phone**: VoiceOver end to end; the SwiftData migration from a phase 2 install (Postcard model added in phase 3); a postcard notification arriving via Health background delivery.
 - **Story card link**: the mockup's `[APP LINK]` reads "steady for iPhone" until there is a store URL.
 - **Studio account**: switch `DEVELOPMENT_TEAM`, bundle IDs and the App Group in `project.yml` (and `WidgetSnapshot.appGroup`), then TestFlight.
