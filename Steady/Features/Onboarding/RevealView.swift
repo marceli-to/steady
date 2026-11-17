@@ -57,6 +57,7 @@ private struct RevealContent: View {
     @State private var shownDistance: Double = 0
     @State private var stage = 0          // 0 nothing · 1 since · 2 number · 3 route · 4 elevation · 5 actions
     @State private var routeProgress: Double = 0
+    @State private var sharing = false
 
     var body: some View {
         let summary = model.allTime
@@ -119,10 +120,8 @@ private struct RevealContent: View {
             Spacer()
 
             VStack(spacing: 12) {
-                ShareLink(item: shareText(summary: summary, comparison: comparison)) {
-                    Text("Share this")
-                }
-                .buttonStyle(.steadyQuiet)
+                Button("Share this") { sharing = true }
+                    .buttonStyle(.steadyQuiet)
                 Button("Start a journey", action: onFinish)
                     .buttonStyle(.steady)
                 Text(model.includeWorkouts ? "Workouts included" : "Everyday walking only, no workouts counted")
@@ -136,6 +135,7 @@ private struct RevealContent: View {
         .padding(.horizontal, Theme.gutter)
         .padding(.bottom, 20)
         .task { await play(to: summary.distance) }
+        .sheet(isPresented: $sharing) { StoryShareSheet() }
     }
 
     private func play(to distance: Double) async {
@@ -172,13 +172,6 @@ private struct RevealContent: View {
         case .aroundTheWorld: (model.homePlace?.name ?? "Home", "around the world")
         case .towardsMoon: ("Earth", "the Moon")
         }
-    }
-
-    private func shareText(summary: MovementSummary, comparison: DistanceComparison?) -> String {
-        let formatter = model.formatter
-        var text = "Since \(summary.firstDay?.formatted(.dateTime.year()) ?? "I started"), I've walked about \(formatter.distance(summary.distance)) without noticing"
-        if let comparison { text += " (\(formatter.comparison(comparison)))" }
-        return text + ". steady wins the race."
     }
 }
 

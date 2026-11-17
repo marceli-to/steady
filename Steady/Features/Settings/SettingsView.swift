@@ -29,6 +29,19 @@ struct SettingsView: View {
                     Text("steady counts everyday walking. Runs, hikes and other recorded workouts are left out unless you include them here.")
                 }
                 Section {
+                    Toggle("Show home city on cards", isOn: $model.showsHomeCityOnCards)
+                } footer: {
+                    Text("Off: share cards leave out your home city, and the start of a journey that begins near it.")
+                }
+                Section {
+                    Toggle("Postcard notifications", isOn: Binding(
+                        get: { model.postcardNotifications },
+                        set: { on in Task { await model.setPostcardNotifications(on) } }
+                    ))
+                } footer: {
+                    Text("One quiet notification when you reach a milestone. Postcards wait for you in the app either way.")
+                }
+                Section {
                     Button("Read all steps again") {
                         model.readEverythingAgain()
                         dismiss()

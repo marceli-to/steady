@@ -16,7 +16,7 @@ struct SteadyApp: App {
         }
         do {
             container = try ModelContainer(
-                for: DayRecord.self, JourneyRun.self,
+                for: DayRecord.self, JourneyRun.self, Postcard.self,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: inMemory)
             )
         } catch {

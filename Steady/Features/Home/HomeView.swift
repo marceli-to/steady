@@ -5,6 +5,9 @@ import SteadyKit
 struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var showsSettings = false
+    @State private var showsPostcards = false
+    @State private var sharesStory = false
+    @State private var openPostcard: Postcard?
 
     var body: some View {
         @Bindable var model = model
@@ -12,13 +15,13 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 48) {
                     if let progress = model.activeProgress {
-                        JourneyBlock(progress: progress)
+                        JourneyBlock(progress: progress) { openPostcard = $0 }
                     } else {
                         NoJourneyBlock()
                     }
                     VStack(alignment: .leading, spacing: 36) {
                         TotalBlock(title: "This year", summary: model.thisYear)
-                        TotalBlock(title: sinceTitle, summary: model.allTime)
+                        TotalBlock(title: sinceTitle, summary: model.allTime) { sharesStory = true }
                     }
                     if case .syncing = model.syncState {
                         Caption("Reading new steps…")
@@ -40,6 +43,10 @@ struct HomeView: View {
                         .foregroundStyle(Theme.ink)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { showsPostcards = true } label: {
+                        Image(systemName: "envelope")
+                    }
+                    .accessibilityLabel("Postcards")
                     Button { model.presentsJourneys = true } label: {
                         Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                     }
@@ -53,6 +60,9 @@ struct HomeView: View {
             .tint(Theme.ink)
             .sheet(isPresented: $showsSettings) { SettingsView() }
             .sheet(isPresented: $model.presentsJourneys) { JourneysView() }
+            .sheet(isPresented: $showsPostcards) { PostcardsView() }
+            .sheet(isPresented: $sharesStory) { StoryShareSheet() }
+            .sheet(item: $openPostcard) { PostcardSheet(postcard: $0) }
         }
     }
 
@@ -65,6 +75,7 @@ struct HomeView: View {
 private struct JourneyBlock: View {
     @Environment(AppModel.self) private var model
     let progress: JourneyProgress
+    var onOpenPostcard: (Postcard) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -99,6 +110,27 @@ private struct JourneyBlock: View {
                 .fixedSize(horizontal: false, vertical: true)
             Caption(dayLine)
                 .padding(.top, 8)
+
+            if let postcard = model.unseenPostcard, let milestone = postcard.milestone {
+                Button { onOpenPostcard(postcard) } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "envelope")
+                            .accessibilityHidden(true)
+                        Text("A postcard from \(milestone.name)")
+                            .font(.manrope(17, .bold, relativeTo: .body))
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .accessibilityHidden(true)
+                    }
+                    .foregroundStyle(Theme.accent)
+                    .padding(.horizontal, 16)
+                    .frame(minHeight: 52)
+                    .background(Theme.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 24)
+            }
         }
     }
 
@@ -147,11 +179,24 @@ private struct TotalBlock: View {
     @Environment(AppModel.self) private var model
     let title: String
     let summary: MovementSummary
+    var onShare: (() -> Void)?
 
     var body: some View {
         let formatter = model.formatter
         VStack(alignment: .leading, spacing: 4) {
-            Caption(title)
+            HStack {
+                Caption(title)
+                Spacer()
+                if let onShare, summary.distance > 0 {
+                    Button(action: onShare) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Theme.muted)
+                            .frame(minWidth: 44, minHeight: 32)
+                    }
+                    .accessibilityLabel("Share")
+                }
+            }
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(formatter.distanceNumber(summary.distance))
                     .font(.manrope(40, .extraBold, relativeTo: .largeTitle))

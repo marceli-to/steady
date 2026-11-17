@@ -14,6 +14,7 @@ final class JourneyRun {
     var finishedOn: Date?
     /// Always "local" in v1. Ready for following other people later.
     var ownerID: String
+    @Relationship(deleteRule: .cascade, inverse: \Postcard.run) var postcards: [Postcard] = []
 
     init(journey: Journey, startedOn: Date) {
         id = UUID()

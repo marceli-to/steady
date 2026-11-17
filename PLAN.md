@@ -239,12 +239,14 @@ Acceptance:
 Build: postcard creation on milestone reached, postcard list, optional local notification (off by default), `ShareRenderer`, story card 1080×1920 dark, postcard 1080×1080 light, `ShareLink`.
 
 Acceptance:
-- [ ] Reaching a milestone creates exactly one postcard with correct place, day number and route progress, even when detected days later.
-- [ ] Postcards list is a simple chronological list; tapping opens the postcard and the share action.
-- [ ] Story card and postcard render pixel-exact at their sizes, match the mockups, and use the same SwiftUI views as on screen.
-- [ ] Home city / start point hidden on cards unless the setting is on; postcard routes start from the first milestone.
-- [ ] Reveal's "Share this" now works.
-- [ ] Unit tests: postcard creation idempotency, card privacy rule.
+- [x] Reaching a milestone creates exactly one postcard with correct place, day number and route progress, even when detected days later.
+- [x] Postcards list is a simple chronological list (newest first); tapping opens the postcard and the share action. Home shows one quiet "A postcard from …" line for the newest unopened one.
+- [x] Story card and postcard render pixel-exact at their sizes (laid out at 360×640 / 360×360 pt, rendered at 3×), match the mockups, and use the same SwiftUI views as on screen. The mockup's `[APP LINK]` is "steady for iPhone" until there is a store link.
+- [x] Home city / start point hidden on cards unless the setting is on; a postcard whose journey starts within 50 km of home leaves the start off and its route starts from the first milestone ("To Rome").
+- [x] Reveal's "Share this" now works (also from the all-time total on Home), with a "Show <home> on the card" toggle beside the preview.
+- [x] Unit tests: postcard creation idempotency, card privacy rule.
+
+Notes: postcard notifications are off by default (Settings); at most one per refresh and only for milestones reached in the last two days, so a backdated journey doesn't send old news. `SHARE_CARD_OUTPUT=<folder>` (as `TEST_RUNNER_SHARE_CARD_OUTPUT` for `xcodebuild test`) writes the rendered cards for comparing with `design/`.
 
 ### Phase 4 — Look back, settings, polish, accessibility
 Build: Look back (year in review: distance, elevation, best month, comparison) shown in December + year archive, Settings (home city, include workouts, units, show home city on cards, postcard notifications, How we count), polish, accessibility pass.

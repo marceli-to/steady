@@ -2,6 +2,7 @@ import Foundation
 import Observation
 import SwiftData
 import WidgetKit
+import UserNotifications
 import SteadyKit
 
 /// App-wide state: settings, the cached history, journeys and the numbers derived from them.
@@ -21,6 +22,10 @@ final class AppModel {
     var homePlaceID: String? { didSet { defaults.set(homePlaceID, forKey: Keys.home); publishWidgets() } }
     var includeWorkouts: Bool { didSet { defaults.set(includeWorkouts, forKey: Keys.workouts); journeysChanged() } }
     var unit: DistanceUnit { didSet { defaults.set(unit.rawValue, forKey: Keys.unit); publishWidgets() } }
+    /// Off by default: share cards leave out the home city, and a journey start near it.
+    var showsHomeCityOnCards: Bool { didSet { defaults.set(showsHomeCityOnCards, forKey: Keys.homeOnCards) } }
+    /// Off by default: one quiet notification when a new postcard arrives.
+    private(set) var postcardNotifications: Bool { didSet { defaults.set(postcardNotifications, forKey: Keys.notifications) } }
 
     /// Set to open the journeys sheet from elsewhere (the reveal's "Start a journey").
     var presentsJourneys = false
@@ -29,6 +34,8 @@ final class AppModel {
 
     private(set) var days: [DayTotals] = []
     private(set) var runs: [JourneyRun] = []
+    /// Newest first.
+    private(set) var postcards: [Postcard] = []
     private(set) var syncState: SyncState = .idle
     let usesMockData: Bool
 
@@ -51,8 +58,11 @@ final class AppModel {
         homePlaceID = defaults.string(forKey: Keys.home)
         includeWorkouts = defaults.bool(forKey: Keys.workouts)
         unit = defaults.string(forKey: Keys.unit).flatMap(DistanceUnit.init(rawValue:)) ?? .localeDefault
+        showsHomeCityOnCards = defaults.bool(forKey: Keys.homeOnCards)
+        postcardNotifications = defaults.bool(forKey: Keys.notifications)
         days = (try? store.cachedDays()) ?? []
         runs = fetchRuns()
+        postcards = fetchPostcards()
     }
 
     private var context: ModelContext { store.context }
@@ -125,14 +135,81 @@ final class AppModel {
         (try? context.fetch(FetchDescriptor<JourneyRun>(sortBy: [SortDescriptor(\.startedOn)]))) ?? []
     }
 
-    /// Marks arrivals and refreshes widgets after history or settings change.
+    /// Writes postcards, marks arrivals and refreshes widgets after history or settings change.
     private func journeysChanged() {
-        if let run = activeRun, let finished = progress(of: run)?.finishedOn {
-            run.finishedOn = finished
+        if let run = activeRun, let progress = progress(of: run) {
+            let written = writePostcards(for: run, progress: progress)
+            if let finished = progress.finishedOn { run.finishedOn = finished }
             try? context.save()
             runs = fetchRuns()
+            postcards = fetchPostcards()
+            notify(about: written)
         }
         publishWidgets()
+    }
+
+    // MARK: Postcards
+
+    /// The newest postcard not opened yet, for the quiet line on Home.
+    var unseenPostcard: Postcard? { postcards.first { !$0.seen } }
+
+    func markSeen(_ postcard: Postcard) {
+        guard !postcard.seen else { return }
+        postcard.seen = true
+        try? context.save()
+    }
+
+    /// One postcard per milestone reached, dated by the history. Safe to call on every refresh.
+    private func writePostcards(for run: JourneyRun, progress: JourneyProgress) -> [Postcard] {
+        let existing = Set(run.postcards.map(\.milestoneID))
+        return PostcardPlanner.newPostcards(for: progress, runID: run.id, existing: existing, includedWorkouts: includeWorkouts)
+            .map { payload in
+                let postcard = Postcard(payload)
+                context.insert(postcard)
+                postcard.run = run
+                return postcard
+            }
+    }
+
+    private func fetchPostcards() -> [Postcard] {
+        let descriptor = FetchDescriptor<Postcard>(sortBy: [SortDescriptor(\.reachedOn, order: .reverse),
+                                                            SortDescriptor(\.progress, order: .reverse)])
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    func postcardContent(_ postcard: Postcard) -> PostcardContent? {
+        guard let journey = postcard.journey else { return nil }
+        return ShareCards.postcard(postcard.payload, journey: journey, home: homePlace,
+                                   showsHomeCity: showsHomeCityOnCards, formatter: formatter)
+    }
+
+    var storyContent: StoryCardContent {
+        let summary = allTime
+        return ShareCards.story(summary: summary, comparison: distanceComparison(for: summary.distance),
+                                elevation: elevationComparison(for: summary.elevation), home: homePlace,
+                                showsHomeCity: showsHomeCityOnCards, formatter: formatter, calendar: calendar)
+    }
+
+    /// Turns postcard notifications on (asking permission first) or off.
+    func setPostcardNotifications(_ on: Bool) async {
+        guard on else { postcardNotifications = false; return }
+        let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
+        postcardNotifications = granted
+    }
+
+    /// At most one notification per refresh, and only for something recent: a journey started
+    /// in the past, or a long time away, shouldn't bring a pile of old news.
+    private func notify(about written: [Postcard], now: Date = .now) {
+        guard postcardNotifications,
+              let latest = written.max(by: { $0.progress < $1.progress }),
+              let milestone = latest.milestone, let journey = latest.journey,
+              let cutoff = calendar.date(byAdding: .day, value: -2, to: calendar.startOfDay(for: now)),
+              latest.reachedOn >= cutoff else { return }
+        let content = UNMutableNotificationContent()
+        content.title = journey.metric == .distance ? "A postcard from \(milestone.name)" : "You reached \(milestone.name)"
+        content.body = "Day \(latest.dayNumber) of \(journey.title)."
+        let request = UNNotificationRequest(identifier: latest.id.uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
     }
 
     // MARK: Sync
@@ -219,6 +296,8 @@ final class AppModel {
         static let home = "homePlaceID"
         static let workouts = "includeWorkouts"
         static let unit = "unit"
+        static let homeOnCards = "showsHomeCityOnCards"
+        static let notifications = "postcardNotifications"
     }
 }
 
